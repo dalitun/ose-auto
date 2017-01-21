@@ -1,9 +1,10 @@
 #!/bin/sh
 
-[ -n /root/backup/openshift ] && mkdir -p /root/backup/openshift
-cd /root/backup/openshift
 DATE=`date +%Y%m%d.%H`
-DIR=/root/backup/openshift/$DATE
+DIR=/backup/openshift
+
+cd /backup && git status
+[ $? != 0 ] && DIR=$DIR/$DATE
 
 # Backup object per project for easy restore
 mkdir -p $DIR/projects
@@ -79,7 +80,15 @@ rsync -va /etc/ansible/facts.d/openshift.fact \
           /usr/lib/systemd/system/origin-master-controllers.service \
       files
 
-# compress
-cd $DIR/..
-tar czvf ${DATE}.tgz $DATE
-rm -rf $DATE
+cd /backup
+git status
+if [ $? == 0 ]; then
+  git add .
+  git commit -am "$DATE"
+  git push -u origin master
+else
+  # compress
+  cd $DIR/..
+  tar czvf ${DATE}.tgz $DATE
+  echo rm -r $DATE
+fi
