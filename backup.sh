@@ -80,6 +80,40 @@ rsync -va /etc/ansible/facts.d/openshift.fact \
           /usr/lib/systemd/system/origin-master-controllers.service \
       files
 
+### Databases ###
+oc observe  --all-namespaces --once pods \
+  -a '{ .metadata.labels.deploymentconfig }'   \
+  -a '{ .metadata.labels.technology }'   \
+  -a '{ .metadata.labels.backup     }'   -- echo \
+ |grep -v ^# \
+ |while read PROJECT POD DC TECH SCHEDULE
+do
+    [ "$SCHEDULE" == "" ] && continue
+    #oc -n $PROJECT env --list $POD |tail -n +2`
+    echo "$POD in $PROJECT want a $TECH $SCHEDULE backup"
+    case $TECH in
+      mysql)
+        mkdir -p $DIR/../mysql/$PROJECT  2>/dev/null
+        oc -n $PROJECT exec $POD -- /usr/bin/sh -c 'PATH=$PATH:/opt/rh/mysql55/root/usr/bin mysqldump -h 127.0.0.1 -u $MYSQL_USER --password=$MYSQL_PASSWORD $MYSQL_DATABASE' >$DIR/../mysql/$PROJECT/$DC.sql
+        ;;
+      *)
+        echo "Unknown technology"
+        ;;
+    esac
+done
+
+
+
+### Persistent Volumes ###
+cd $DIR/volumes
+mount -t glusterfs 192.168.0.20:vol_e22f1c43ac7556b3338ba400a61f719e /mnt/tmp/
+rsync -va /mnt/tmp uploads
+umount /mnt/tmp
+mount -t glusterfs 192.168.0.20:pvc-b18c0d5d-eb28-11e6-9f5a-06f5e3517bb5 /mnt/tmp/
+rsync -va /mnt/tmp downloads
+umount /mnt/tmp
+
+
 cd /backup
 git status
 if [ $? == 0 ]; then
