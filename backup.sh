@@ -97,7 +97,7 @@ do
         oc -n $PROJECT exec $POD -- /usr/bin/sh -c 'PATH=$PATH:/opt/rh/mysql55/root/usr/bin:/opt/rh/rh-mysql56/root/usr/bin/ mysqldump -h 127.0.0.1 -u $MYSQL_USER --password=$MYSQL_PASSWORD $MYSQL_DATABASE' >$DIR/../mysql/$PROJECT/$DC.sql
         ;;
       postgresql)
-        oc -n $PROJECT exec $POD -- /usr/bin/sh -c 'PATH=$PATH:/opt/rh/rh-postgresql94/root/usr/bin pg_dump $POSTGRESQL_DATABASE' >$DIR/../postgresql/$PROJECT/$DC.sql
+        oc -n $PROJECT exec $POD -- /usr/bin/sh -c 'PATH=$PATH:/opt/rh/rh-postgresql94/root/usr/bin:/opt/rh/rh-postgresql95/root/usr/bin pg_dump $POSTGRESQL_DATABASE' >$DIR/../postgresql/$PROJECT/$DC.sql
         ;;
       *)
         echo "Unknown technology"
