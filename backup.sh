@@ -45,7 +45,7 @@ done
 
 cd $DIR
 # etcd database backup
-etcdctl backup --data-dir /var/lib/openshift/openshift.local.etcd   --backup-dir etcd
+etcdctl backup --data-dir /var/lib/etcd   --backup-dir etcd
 
 # config files backup
 mkdir files
@@ -78,6 +78,7 @@ rsync -va /etc/ansible/facts.d/openshift.fact \
           /usr/lib/systemd/system/atomic-openshift-master-controllers.service \
           /usr/lib/systemd/system/origin-master-api.service \
           /usr/lib/systemd/system/origin-master-controllers.service \
+          /var/lib/etcd \
       files
 
 ### Databases ###
@@ -109,13 +110,13 @@ done
 
 
 ### Persistent Volumes ###
-cd $DIR/../volumes
-mount -t glusterfs 192.168.0.20:vol_e22f1c43ac7556b3338ba400a61f719e /mnt/tmp/
-rsync -va /mnt/tmp/ uploads/
-umount /mnt/tmp
-mount -t glusterfs 192.168.0.20:pvc-b18c0d5d-eb28-11e6-9f5a-06f5e3517bb5 /mnt/tmp/
-rsync -va /mnt/tmp/ downloads/
-umount /mnt/tmp
+#cd $DIR/../volumes
+#mount -t glusterfs 192.168.0.20:vol_e22f1c43ac7556b3338ba400a61f719e /mnt/tmp/
+#rsync -va /mnt/tmp/ uploads/
+#umount /mnt/tmp
+#mount -t glusterfs 192.168.0.20:pvc-b18c0d5d-eb28-11e6-9f5a-06f5e3517bb5 /mnt/tmp/
+#rsync -va /mnt/tmp/ downloads/
+#umount /mnt/tmp
 
 
 cd /backup
